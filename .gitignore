@@ -15,6 +15,7 @@ pip-delete-this-directory.txt
 .pydevproject
 .venv
 env/
+venv/
 ENV/
 virtualenv/
 virtualenvs/
