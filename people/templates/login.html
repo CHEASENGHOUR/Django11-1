@@ -1,0 +1,49 @@
+{% load widget_tweaks %}
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    {% tailwind_css %}
+</head>
+<body>
+    <div class="flex items-center justify-center min-h-screen bg-gray-100">
+        <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-center text-indigo-500 mb-6">Login</h2>
+    
+            <form method="post">
+                {% csrf_token %}
+            
+                <!-- Username Field -->
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                    {{ form.username|add_class:"w-full p-2 input input-primary bg-white border-2 text-indigo-500" }}
+                    {% if form.username.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            
+                <!-- Password Field -->
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    {{ form.password|add_class:"w-full p-2 input input-primary bg-white border-2 text-indigo-500" }}
+                    {% if form.password.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600">
+                    Login
+                </button>
+            </form>
+    
+            <p class="mt-4 text-center text-sm text-gray-600">
+                Don't have an account?
+                <a href="{% url 'register' %}" class="text-blue-500 hover:underline">Register here</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

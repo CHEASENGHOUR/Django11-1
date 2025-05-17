@@ -1,0 +1,57 @@
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+develop-eggs/
+.installed.cfg
+pip-log.txt
+pip-delete-this-directory.txt
+.pyrex/
+.pydevproject
+.venv
+env/
+ENV/
+virtualenv/
+virtualenvs/
+
+# Django
+*.log
+*.pot
+*.mo
+*.po
+db.sqlite3
+media/
+/static_root/
+/media_root/
+instance/
+.webassets-cache
+
+# Project-specific
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+*.pyc
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn.lock
+package-lock.json
