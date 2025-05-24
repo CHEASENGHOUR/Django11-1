@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.conf import settings
+import uuid
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -35,3 +37,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+class Task(models.Model):
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    unique_link = models.UUIDField(default=uuid.uuid4, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    task_file = models.FileField(upload_to='tasks/%Y/%m/%d/', blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+class Submission(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')
+    student_name = models.CharField(max_length=100)  # New field for student name
+    content = models.TextField(blank=True)
+    submission_file = models.FileField(upload_to='submissions/%Y/%m/%d/')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField()
+
+    def __str__(self):
+        return f"Submission by {self.student_name} for {self.task.title}"
+
