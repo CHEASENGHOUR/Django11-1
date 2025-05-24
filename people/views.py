@@ -16,7 +16,12 @@ from .serializers import TaskSerializer, SubmissionSerializer
 # Create your views here.
 @login_required(login_url='login')
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'list.html')
+
+@login_required(login_url='login')
+def task(request):
+    return render(request, 'task.html')
+
 def Logout(request):
     logout(request)
     return redirect('login')

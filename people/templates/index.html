@@ -1,39 +1,57 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Home{% endblock %}</title>
+    
+    {% tailwind_css %}
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  {% tailwind_css %}
-</head>
-
-<body>
-  <div class="min-h-screen bg-gray-100">
-    <div class="navbar bg-base-100 shadow-sm">
-      <div class="flex-1">
-        <a class="btn btn-ghost text-xl">daisyUI</a>
-      </div>
-      <div class="flex-none">
-        <ul class="menu menu-horizontal px-1 bg-amber-400">
+  <body>
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <div class="w-64 bg-base-100 p-4 shadow-md">
+        <h2 class="text-xl font-bold mb-4">Sidebar</h2>
+        <ul class="menu space-y-2">
           <li>
-            <details>
-              <summary>Parent</summary>
-              <ul class="bg-base-100 rounded-t-none p-1">
-                <li>
-                  <a>Link 1</a>
-                </li>
-                <li>
-                  <a href="{% url "logout" %}">Log Out</a>
-                </li>
-              </ul>
-            </details>
+            <a href="{% url 'index' %}">Home</a>
+          </li>
+          <li>
+            <a href="{% url 'task' %}">About</a>
           </li>
         </ul>
       </div>
-    </div>
-  </div>
-</body>
 
+      <!-- Main Content -->
+      <div class="flex-1 bg-base-200">
+        <div class="navbar shadow-sm">
+          <div class="flex-1">
+            <a class="btn btn-ghost text-xl">daisyUI</a>
+          </div>
+          <div class="flex-none">
+            <ul class="menu menu-horizontal w-28 px-1">
+              <li>
+                <details>
+                  <summary class="w-full bg-indigo-900">Parent</summary>
+                  <ul class="bg-base-100 w-28 rounded-t-none p-1">
+                    <li>
+                      <a>Link 1</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'logout' %}">Log Out</a>
+                    </li>
+                  </ul>
+                </details>
+              </li>
+            </ul>
+          </div>
+        </div>
+        {% block content %}
+
+        {% endblock %}
+      </div>
+    </div>
+  </body>
 </html>

@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+{% block title %}Task{% endblock %}
+
+{% block content %}
+
+  <h1 class="text-2xl font-bold mb-4">Create Task</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+  </form>
+
+
+{% endblock content %}
