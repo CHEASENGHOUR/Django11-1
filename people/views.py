@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, TeacherTaskForm, StudentSubmissionForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login
@@ -11,12 +11,77 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from django.urls import reverse
 from .models import Task, Submission
 from .serializers import TaskSerializer, SubmissionSerializer
+
+@login_required
+def teacher_create_task(request):
+
+    if request.method == 'POST':
+        form = TeacherTaskForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            task = form.save()
+            messages.success(request, "Task created successfully!")
+            return redirect('task_created', task_id=task.id)
+    else:
+        form = TeacherTaskForm(user=request.user) 
+
+    return render(request, 'task.html', {'form': form})
+
+@login_required
+def task_created(request, task_id):
+
+    task = get_object_or_404(Task, id=task_id, created_by=request.user)
+    task_url = request.build_absolute_uri(
+        reverse('student_task_submission', args=[task.unique_link])
+    )
+    return render(request, 'task_created.html', {
+        'task': task,
+        'task_url': task_url
+    })
+    
+def student_task_submission(request, unique_link):
+    task = get_object_or_404(Task, unique_link=unique_link)
+
+    if request.method == 'POST':
+        form = StudentSubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            submission = Submission(
+                task=task,
+                student_name=form.cleaned_data['student_name'],
+                submission_file=form.cleaned_data['submission_file'],
+                ip_address=request.META.get('REMOTE_ADDR')
+            )
+            submission.save()
+            messages.success(request, "Submission received successfully!")
+            return redirect('submission_success')
+    else:
+        form = StudentSubmissionForm()
+
+    return render(request, 'student_submit.html', {
+        'form': form,
+        'task': task
+    })
+
+class StudentSubmitView(TemplateView):
+    template_name = 'student_submit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = get_object_or_404(Task, unique_link=self.kwargs['unique_link'])
+        context['task'] = task
+        context['form'] = StudentSubmissionForm()
+        return context
+
+def submission_success(request):
+    return render(request, 'submission_success.html')
+
 # Create your views here.
 @login_required(login_url='login')
 def index(request):
-    return render(request, 'list.html')
+    submissions = Submission.objects.filter(task__created_by=request.user).order_by('-submitted_at')
+    return render(request, 'list.html', {'submissions': submissions})
 
 @login_required(login_url='login')
 def task(request):
@@ -41,27 +106,27 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Task.objects.filter(created_by=self.request.user)
         return Task.objects.none()
 
-class SubmissionViewSet(viewsets.ModelViewSet):
-    queryset = Submission.objects.all()
-    serializer_class = SubmissionSerializer
-    permission_classes = [AllowAny]
+# class SubmissionViewSet(viewsets.ModelViewSet):
+#     queryset = Submission.objects.all()
+#     serializer_class = SubmissionSerializer
+#     permission_classes = [AllowAny]
 
-    @action(detail=False, methods=['post'], url_path='submit/(?P<unique_link>[^/.]+)')
-    def submit_task(self, request, unique_link=None):
-        task = get_object_or_404(Task, unique_link=unique_link)
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(
-                task=task,
-                ip_address=request.META.get('REMOTE_ADDR')
-            )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     @action(detail=False, methods=['post'], url_path='submit/(?P<unique_link>[^/.]+)')
+#     def submit_task(self, request, unique_link=None):
+#         task = get_object_or_404(Task, unique_link=unique_link)
+#         serializer = self.get_serializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save(
+#                 task=task,
+#                 ip_address=request.META.get('REMOTE_ADDR')
+#             )
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Submission.objects.filter(task__created_by=self.request.user)
-        return Submission.objects.none()
+#     def get_queryset(self):
+#         if self.request.user.is_authenticated:
+#             return Submission.objects.filter(task__created_by=self.request.user)
+#         return Submission.objects.none()
 
 class StudentSubmitView(TemplateView):
     template_name = 'student_submit.html'
@@ -70,6 +135,8 @@ class StudentSubmitView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['unique_link'] = self.kwargs['unique_link']
         return context
+
+
 
 # @login_required(login_url='login')
 # class AdminDashboardView(LoginRequiredMixin, TemplateView):

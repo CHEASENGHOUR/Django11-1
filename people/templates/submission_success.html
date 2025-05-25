@@ -1,0 +1,16 @@
+{% extends "index.html" %}
+{% block title %}Submission Successful{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Submission Successful</h1>
+    <div class="card bg-base-100 shadow-xl max-w-lg mx-auto">
+        <div class="card-body">
+            <p>Your task submission has been received successfully. Thank you!</p>
+            <div class="card-actions justify-end">
+                <a href="{% url 'index' %}" class="btn btn-primary">Return to Home</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
